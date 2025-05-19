@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Marseille";
+  src: url("/fonts/Marseille.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --background: 36 30% 98%;
+    --foreground: 20 10% 5%;
+
+    --card: 36 30% 98%;
+    --card-foreground: 20 10% 5%;
+
+    --popover: 36 30% 98%;
+    --popover-foreground: 20 10% 5%;
+
+    --primary: 15 45% 35%;
+    --primary-foreground: 36 30% 98%;
+
+    --secondary: 30 30% 90%;
+    --secondary-foreground: 15 45% 25%;
+
+    --muted: 30 20% 90%;
+    --muted-foreground: 15 10% 40%;
+
+    --accent: 30 30% 90%;
+    --accent-foreground: 15 45% 25%;
+
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 36 30% 98%;
+
+    --border: 20 15% 85%;
+    --input: 20 15% 85%;
+    --ring: 15 45% 35%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 20 10% 5%;
+    --foreground: 36 30% 98%;
+
+    --card: 20 10% 5%;
+    --card-foreground: 36 30% 98%;
+
+    --popover: 20 10% 5%;
+    --popover-foreground: 36 30% 98%;
+
+    --primary: 15 45% 35%;
+    --primary-foreground: 36 30% 98%;
+
+    --secondary: 30 15% 20%;
+    --secondary-foreground: 36 30% 98%;
+
+    --muted: 30 15% 20%;
+    --muted-foreground: 30 10% 70%;
+
+    --accent: 30 15% 20%;
+    --accent-foreground: 36 30% 98%;
+
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 36 30% 98%;
+
+    --border: 30 15% 20%;
+    --input: 30 15% 20%;
+    --ring: 15 45% 35%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Marseille", var(--font-montserrat), sans-serif;
+  }
+}
+
+.teko-heading {
+  font-family: "Marseille", var(--font-montserrat), sans-serif;
+}
