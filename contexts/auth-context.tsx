@@ -1,8 +1,15 @@
 "use client"
-
-import type React from "react"
-
-import { createContext, useContext, useState, useEffect } from "react"
+// feat: add firebase auth - loginm register logout
+import React, { createContext, useContext, useState, useEffect } from "react"
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  User as FirebaseUser,
+} from "firebase/auth"
+import { doc, setDoc, getDoc } from "firebase/firestore"
+import { auth, db } from "@/lib/firebase"
 
 type User = {
   id: string
@@ -27,30 +34,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Simula verificação de autenticação
-    const storedUser = localStorage.getItem("teko-user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-    setIsLoading(false)
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const docRef = doc(db, "usuarios", firebaseUser.uid)
+        const snap = await getDoc(docRef)
+
+        if (snap.exists()) {
+          const data = snap.data()
+          setUser({
+            id: firebaseUser.uid,
+            name: data.nome,
+            email: firebaseUser.email || "",
+            role: data.role,
+            avatar: data.avatar || undefined,
+          })
+        }
+      } else {
+        setUser(null)
+      }
+      setIsLoading(false)
+    })
+
+    return () => unsubscribe()
   }, [])
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     try {
-      // Simulação de API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Usuário de exemplo
-      const mockUser: User = {
-        id: "1",
-        name: "Usuário Teste",
-        email,
-        role: email.includes("seller") ? "seller" : "customer",
-      }
-
-      setUser(mockUser)
-      localStorage.setItem("teko-user", JSON.stringify(mockUser))
+      await signInWithEmailAndPassword(auth, email, password)
     } finally {
       setIsLoading(false)
     }
@@ -59,29 +70,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (name: string, email: string, password: string, role: "customer" | "seller") => {
     setIsLoading(true)
     try {
-      // Simulação de API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const result = await createUserWithEmailAndPassword(auth, email, password)
+      const user = result.user
 
-      const mockUser: User = {
-        id: Date.now().toString(),
-        name,
+      await setDoc(doc(db, "usuarios", user.uid), {
+        nome: name,
         email,
         role,
-      }
-
-      setUser(mockUser)
-      localStorage.setItem("teko-user", JSON.stringify(mockUser))
+        avatar: "",
+        criadoEm: new Date(),
+      })
     } finally {
       setIsLoading(false)
     }
   }
 
   const logout = () => {
+    signOut(auth)
     setUser(null)
-    localStorage.removeItem("teko-user")
   }
 
-  return <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export const useAuth = () => {
